@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "None",
+    "target": "ES6",
+    "sourceMap": false,
+    "outFile": "./ez-package-tracker.js",
+    "alwaysStrict": true,
+    "strict": true,
+    "noResolve": true,
+    "strictNullChecks": true,
+    "removeComments": false,
+    "exactOptionalPropertyTypes": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
