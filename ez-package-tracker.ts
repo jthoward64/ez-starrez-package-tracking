@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StarRez EZ Package Tracking
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Adds an easy-to-use form to the Quick Information page of StarRez
 // @author       Joshua Tag Howard
 // @match        https://starport.uky.edu/StarRezWeb/main/directory
@@ -184,7 +184,7 @@
      * Shows the form to submit a package
      */
     function handleTrackingNumberSubmit(trackingNumber: string, status: string) {
-        let statusId;
+        let statusId: string;
 
         if (status === "Received by front desk") {
             statusId = "received";
@@ -219,9 +219,7 @@
                     <div class="ui-dropdown-container-caption dropdown-container-caption"
                          id="${statusId}-package-location-${trackingNumberId}-text">
                     </div>
-                    <select class="ui-input" name="location" id="${statusId}-package-location-${trackingNumberId}"
-                            onchange="document.getElementById(this.id+'-text').innerText = this.selectedOptions.item(0).label;"
-                            required>
+                    <select class="ui-input" name="location" id="${statusId}-package-location-${trackingNumberId}" required>
                         <option value=""></option>
                         <option value="Front Desk">Front Desk</option>
                         <option value="Mailbox">Mailbox</option>
@@ -232,25 +230,25 @@
 
         <li style="flex-direction: row">
             <label for="${statusId}-package-shipping-type-${trackingNumberId}" title="Shipping Type">Shipping Type:</label>
-            <div class="edit-control ui-select-list ui-dropdown-container dropdown-container editable-dropdown ui-editable-dropdown ui-controls-container large">
-                <div class="ui-dropdown-controls-container controls-container">
-                    <div class="editable-dropdown-icon"></div>
-                    <div class="ui-dropdown-container-caption dropdown-container-caption"
-                         id="${statusId}-package-shipping-type-${trackingNumberId}-text">
+            <div style="display: flex; flex-direction: column; gap: 0.5em">
+                <div class="edit-control ui-select-list ui-dropdown-container dropdown-container editable-dropdown ui-editable-dropdown ui-controls-container large">
+                    <div class="ui-dropdown-controls-container controls-container">
+                        <div class="editable-dropdown-icon"></div>
+                        <div class="ui-dropdown-container-caption dropdown-container-caption"
+                             id="${statusId}-package-shipping-type-${trackingNumberId}-text">
+                        </div>
+                        <select name="shipping-type" id="${statusId}-package-shipping-type-${trackingNumberId}" required>
+                            <option value=""></option>
+                            <option value="Amazon">Amazon Delivery</option>
+                            <option value="USPS">USPS</option>
+                            <option value="FedEx">FedEx</option>
+                            <option value="UPS">UPS</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
-                    <select name="shipping-type" id="${statusId}-package-shipping-type-${trackingNumberId}"
-                            onchange="document.getElementById(this.id+'-text').innerText = this.selectedOptions.item(0).label;"
-                            required>
-                        <option value=""></option>
-                        <option value="Amazon">Amazon Delivery</option>
-                        <option value="USPS">USPS</option>
-                        <option value="FedEx">FedEx</option>
-                        <option value="UPS">UPS</option>
-                        <option value="Other">Other</option>
-                    </select>
                 </div>
+                <span id="${statusId}-package-shipping-type-${trackingNumberId}-hint"></span>
             </div>
-            <span id="${statusId}-package-shipping-type-${trackingNumberId}-hint"></span>
         </li>
 
         <li style="flex-direction: row">
@@ -321,38 +319,61 @@
 
         const mainPane = getMainPane();
 
+        const onPackageSelectionChanged = (selector: HTMLSelectElement) => {
+            const selectorText = document.getElementById(selector.id + '-text');
+
+            if (selector instanceof HTMLSelectElement && selectorText != null) {
+                selectorText.innerText = selector.selectedOptions.item(0)?.label ?? "";
+            }
+
+            const shippingTypeHint = document.getElementById(`${statusId}-package-shipping-type-${trackingNumberId}-hint`);
+            if (shippingTypeHint != null) {
+                shippingTypeHint.innerText = "";
+            }
+        }
+
         if (mainPane) {
             mainPane.appendChild(packageForm);
 
+            const locationSelector = document.getElementById(`${statusId}-package-location-${trackingNumberId}`);
+            if (locationSelector instanceof HTMLSelectElement) {
+                locationSelector.addEventListener('change', () => onPackageSelectionChanged(locationSelector));
+            }
+
             const shippingTypeSelect = document.getElementById(`${statusId}-package-shipping-type-${trackingNumberId}`);
             const shippingTypeHint = document.getElementById(`${statusId}-package-shipping-type-${trackingNumberId}-hint`);
-            const guessedHint = "Shipping&nbsp;type&nbsp;is&nbsp;just&nbsp;a&nbsp;guess,&nbsp;please&nbsp;double&nbsp;check";
+            if (shippingTypeSelect instanceof HTMLSelectElement) {
+                shippingTypeSelect.addEventListener('change', () => onPackageSelectionChanged(shippingTypeSelect));
+            }
+
+            const guessedHint = "Shipping type is just a guess, please double check";
 
             if (shippingTypeSelect == null || !(shippingTypeSelect instanceof HTMLSelectElement)) {
                 console.error("Could not find shipping type select element");
             } else {
                 // Let's try and guess what kind of shipping this is
+                let didMatch = false;
+
                 if (trackingNumber.startsWith("TBA") || trackingNumber.startsWith("TBM") || trackingNumber.startsWith("TBC")) {
                     // This is most likely a package that is being delivered by Amazon, so we can automatically fill in the shipping type
                     shippingTypeSelect.value = "Amazon";
-                    if (shippingTypeHint) {
-                        shippingTypeHint.innerText = guessedHint;
-                    }
+                    didMatch = true;
                 } else if (trackingNumber.match(/\b(1Z ?[0-9A-Z]{3} ?[0-9A-Z]{3} ?[0-9A-Z]{2} ?[0-9A-Z]{4} ?[0-9A-Z]{3} ?[0-9A-Z]|[\dT]\d\d\d ?\d\d\d\d ?\d\d\d)\b/)) {
                     // Probably UPS
                     shippingTypeSelect.value = "UPS";
-                    if (shippingTypeHint) {
-                        shippingTypeHint.innerText = guessedHint;
-                    }
+                    didMatch = true;
                 } else if (trackingNumber.match(/(\b96\d{20}\b)|(\b\d{15}\b)|(\b\d{12}\b)/) || trackingNumber.match(/\b((98\d\d\d\d\d?\d\d\d\d|98\d\d) ?\d\d\d\d ?\d\d\d\d( ?\d\d\d)?)\b/) || trackingNumber.match(/^[0-9]{15}$/)) {
                     // Probably FedEx
                     shippingTypeSelect.value = "FedEx";
-                    if (shippingTypeHint) {
-                        shippingTypeHint.innerText = guessedHint;
-                    }
+                    didMatch = true;
                 } else if (trackingNumber.match(/(\b\d{30}\b)|(\b91\d+\b)|(\b\d{20}\b)/) || trackingNumber.match(/^E\D\d{9}\D{2}$|^9\d{15,21}$/) || trackingNumber.match(/^91[0-9]+$/) || trackingNumber.match(/^[A-Za-z]{2}[0-9]+US$/)) {
                     // Probably USPS
                     shippingTypeSelect.value = "USPS";
+                    didMatch = true;
+                }
+
+                if (didMatch) {
+                    onPackageSelectionChanged(shippingTypeSelect);
                     if (shippingTypeHint) {
                         shippingTypeHint.innerText = guessedHint;
                     }
