@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StarRez EZ Package Tracking
 // @namespace    http://tampermonkey.net/
-// @version      1.1.0
+// @version      1.1.1
 // @description  Adds an easy-to-use form to the Quick Information page of StarRez
 // @author       Joshua Tag Howard
 // @match        https://starport.uky.edu/StarRezWeb/main/directory
@@ -129,6 +129,8 @@
     const dropdown = document.createElement("div");
     dropdown.className =
       "edit-control ui-select-list ui-dropdown-container dropdown-container editable-dropdown ui-editable-dropdown ui-controls-container large";
+    // If we have a default value, disable the dropdown
+    dropdown.classList.toggle("disabled", isValueSaved);
     listItem.appendChild(dropdown);
     const dropdownControls = document.createElement("div");
     dropdownControls.className =
@@ -175,10 +177,16 @@
             eraseCookie(defaultValueCookieName);
             lockIcon.className = "fa fa-unlock";
             select.disabled = false;
+            isValueSaved = false;
+            // Enable the dropdown
+            dropdown.classList.toggle("disabled", false);
           } else {
             createCookie(defaultValueCookieName, select.value, 365);
             lockIcon.className = "fa fa-lock";
             select.disabled = true;
+            isValueSaved = true;
+            // Disable the dropdown
+            dropdown.classList.toggle("disabled", true);
           }
         }
       };
