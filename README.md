@@ -29,9 +29,12 @@ In some cases, the EZ Package Tracker may auto-detect the shipping type, in whic
 
 ![Screenshot of an auto-detected shipping type](./screenshots/Automatic%20Shipping%20Type.png)
 
+## New Features
+
+- Added a the ability to lock dropdowns to persist their selection across multiple packages
+- Added a way to change the default building, allowing multiple residence halls to use the tracker
+
 ## Future plans
 
-- Allow setting defaults for the pickup location for checking in many packages at once
 - Scroll to the form when it is opened
-- Allow changing the building
 - (maybe) Add a completely new page dedicated to checking in packages
