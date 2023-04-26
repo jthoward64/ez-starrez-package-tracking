@@ -93,6 +93,7 @@
     }
     return foundDiv;
   }
+
   function createSelect(
     statusId: string,
     trackingNumberId: string,
@@ -101,7 +102,7 @@
     formName: string,
     selectOptions: string[],
     defaultValueCookieName?: string
-  ): HTMLLIElement {
+  ): {element: HTMLLIElement, getValue: () => string} {
     let defaultValue: string = "";
     let isValueSaved = false;
     if (defaultValueCookieName) {
@@ -205,7 +206,14 @@
       dropdownSelect.appendChild(option);
     }
 
-    return listItem;
+    return {
+      element: listItem,
+      getValue: () => {
+        return (document.getElementById(
+          `${statusId}-${selectSlug}-${trackingNumberId}`
+        ) as HTMLSelectElement).value;
+      },
+    };
   }
 
   function makeStarRezHeaders(): Headers {
@@ -521,29 +529,31 @@
     statusLi.appendChild(statusLabel);
     statusLi.appendChild(document.createTextNode(status));
 
+    const pickupLocationEl = createSelect(
+      statusId,
+      trackingNumberId,
+      "Parcel Pickup Location",
+      "package-location",
+      "location",
+      ["", "Front Desk", "Mailbox"],
+      cookieNameSavedLocation
+    );
     editFields.appendChild(
-      createSelect(
-        statusId,
-        trackingNumberId,
-        "Parcel Pickup Location",
-        "package-location",
-        "location",
-        ["", "Front Desk", "Mailbox"],
-        cookieNameSavedLocation
-      )
+      pickupLocationEl.element
     );
 
     // Replace above with call to createSelect
+    const shippingTypeEl = createSelect(
+      statusId,
+      trackingNumberId,
+      "Shipping Type",
+      "package-shipping-type",
+      "shipping-type",
+      ["", "Amazon Delivery", "USPS", "FedEx", "UPS", "Other"],
+      cookieNameSavedShippingType
+    );
     editFields.appendChild(
-      createSelect(
-        statusId,
-        trackingNumberId,
-        "Shipping Type",
-        "package-shipping-type",
-        "shipping-type",
-        ["", "Amazon Delivery", "USPS", "FedEx", "UPS", "Other"],
-        cookieNameSavedShippingType
-      )
+      shippingTypeEl.element
     );
 
     const commentsLi = document.createElement("li");
@@ -576,16 +586,18 @@
       );
       return;
     }
+
+    const buildingEl = createSelect(
+      statusId,
+      trackingNumberId,
+      "Building",
+      "package-building",
+      "building",
+      possibleBuildings,
+      cookieNameSavedBuilding
+    );
     editFields.appendChild(
-      createSelect(
-        statusId,
-        trackingNumberId,
-        "Building",
-        "package-building",
-        "building",
-        possibleBuildings,
-        cookieNameSavedBuilding
-      )
+      buildingEl.element
     );
 
     const submitNote = document.createElement("p");
@@ -611,11 +623,10 @@
       console.log("Getting ready to submit package");
 
       if (e.target != null && e.target instanceof HTMLFormElement) {
-        const formData = new FormData(e.target);
-        const location = formData.get("location");
-        const shippingType = formData.get("shipping-type");
-        const comments = formData.get("comments");
-        const building = formData.get("building");
+        const location = pickupLocationEl.getValue();
+        const shippingType = shippingTypeEl.getValue();
+        const comments = commentsTextareaInput.value;
+        const building = buildingEl.getValue();
 
         if (location == null || shippingType == null || building == null) {
           alert("Please fill out all fields");

@@ -188,7 +188,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             }
             dropdownSelect.appendChild(option);
         }
-        return listItem;
+        return {
+            element: listItem,
+            getValue: () => {
+                return document.getElementById(`${statusId}-${selectSlug}-${trackingNumberId}`).value;
+            },
+        };
     }
     function makeStarRezHeaders() {
         const myHeaders = new Headers();
@@ -409,9 +414,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             statusLabel.innerText = "Parcel Status:";
             statusLi.appendChild(statusLabel);
             statusLi.appendChild(document.createTextNode(status));
-            editFields.appendChild(createSelect(statusId, trackingNumberId, "Parcel Pickup Location", "package-location", "location", ["", "Front Desk", "Mailbox"], cookieNameSavedLocation));
+            const pickupLocationEl = createSelect(statusId, trackingNumberId, "Parcel Pickup Location", "package-location", "location", ["", "Front Desk", "Mailbox"], cookieNameSavedLocation);
+            editFields.appendChild(pickupLocationEl.element);
             // Replace above with call to createSelect
-            editFields.appendChild(createSelect(statusId, trackingNumberId, "Shipping Type", "package-shipping-type", "shipping-type", ["", "Amazon Delivery", "USPS", "FedEx", "UPS", "Other"], cookieNameSavedShippingType));
+            const shippingTypeEl = createSelect(statusId, trackingNumberId, "Shipping Type", "package-shipping-type", "shipping-type", ["", "Amazon Delivery", "USPS", "FedEx", "UPS", "Other"], cookieNameSavedShippingType);
+            editFields.appendChild(shippingTypeEl.element);
             const commentsLi = document.createElement("li");
             commentsLi.style.flexDirection = "row";
             editFields.appendChild(commentsLi);
@@ -439,7 +446,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 alert("Failed to get list of buildings, please reload the page and try again, if the problem persists the EZ Package Tracker may be broken");
                 return;
             }
-            editFields.appendChild(createSelect(statusId, trackingNumberId, "Building", "package-building", "building", possibleBuildings, cookieNameSavedBuilding));
+            const buildingEl = createSelect(statusId, trackingNumberId, "Building", "package-building", "building", possibleBuildings, cookieNameSavedBuilding);
+            editFields.appendChild(buildingEl.element);
             const submitNote = document.createElement("p");
             submitNote.innerText = '"Submit Parcel" will be enabled automatically';
             editFields.appendChild(submitNote);
@@ -458,11 +466,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 e.stopPropagation();
                 console.log("Getting ready to submit package");
                 if (e.target != null && e.target instanceof HTMLFormElement) {
-                    const formData = new FormData(e.target);
-                    const location = formData.get("location");
-                    const shippingType = formData.get("shipping-type");
-                    const comments = formData.get("comments");
-                    const building = formData.get("building");
+                    const location = pickupLocationEl.getValue();
+                    const shippingType = shippingTypeEl.getValue();
+                    const comments = commentsTextareaInput.value;
+                    const building = buildingEl.getValue();
                     if (location == null || shippingType == null || building == null) {
                         alert("Please fill out all fields");
                         return;
