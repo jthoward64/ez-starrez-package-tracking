@@ -9,7 +9,7 @@ This tool is of almost no use to anyone outside of the University of Kentucky, b
 1. Add the [Tampermonkey](https://www.tampermonkey.net/) extension to your browser
 2. Open the extensions's dashboard (click on its icon and then click dashboard)
 3. Go to the utilites tab
-4. Paste `https://raw.githubusercontent.com/jthoward64/ez-starrez-package-tracking/main/ez-package-tracker.js` into "Import from URL"
+4. Paste `[https://raw.githubusercontent.com/jthoward64/ez-starrez-package-tracking/main/ez-package-tracker.js](https://jthoward64.github.io/ez-starrez-package-tracking/ez-package-tracker.js)` into "Import from URL"
 5. When prompted press install
 6. Profit
 
