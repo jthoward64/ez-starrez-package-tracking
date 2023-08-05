@@ -1,0 +1,30 @@
+<h1>StarRez EZ Package Tracker</h1>
+<p>This is a tampermonkey script (but you can also just paste it into your console) that adds a much simpler method of checking in packages to the University of Kentucky&#39;s StarRez system.</p>
+<p>This tool is of almost no use to anyone outside of the University of Kentucky, but feel free to take a look.</p>
+<h2>To install</h2>
+<ol>
+<li>Add the <a href="https://www.tampermonkey.net/">Tampermonkey</a> extension to your browser</li>
+<li>Open the extensions&#39;s dashboard (click on its icon and then click dashboard)</li>
+<li>Go to the utilites tab</li>
+<li>Paste <code>https://raw.githubusercontent.com/jthoward64/ez-starrez-package-tracking/main/ez-package-tracker.js</code> into &quot;Import from URL&quot;</li>
+<li>When prompted press install</li>
+<li>Profit</li>
+</ol>
+<h2>How to use</h2>
+<p>When enabled, EZ Package Tracker will inject code into the StarRez website. This will add a box to the Quick Information tab of the student&#39;s profile.</p>
+<p><img src="./screenshots/Blank%20Tracker.png" alt="Screenshot of the new box"></p>
+<p>To use the tracker, select the relevant box (checking a package in or out) and either type the barcode in and press enter or scan the barcode.</p>
+<p>Then simple fill in the pickup location, the sipping type, any notes you have (optional), and press submit.</p>
+<p><img src="./screenshots/Selecting%20a%20Package.png" alt="Screenshot of an in-progress form"></p>
+<p>In some cases, the EZ Package Tracker may auto-detect the shipping type, in which case it will be auto-selected. Please double check this as it is somewhat unreliable, if it is wrong, you can change it just like normal.</p>
+<p><img src="./screenshots/Automatic%20Shipping%20Type.png" alt="Screenshot of an auto-detected shipping type"></p>
+<h2>New Features</h2>
+<ul>
+<li>Added a the ability to lock dropdowns to persist their selection across multiple packages</li>
+<li>Added a way to change the default building, allowing multiple residence halls to use the tracker</li>
+</ul>
+<h2>Future plans</h2>
+<ul>
+<li>Scroll to the form when it is opened</li>
+<li>(maybe) Add a completely new page dedicated to checking in packages</li>
+</ul>

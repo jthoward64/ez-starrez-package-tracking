@@ -1,8 +1,15 @@
 {
   "scripts": {
-    "build": "tsc"
+    "compile": "tsc",
+    "watch": "tsc -w",
+    "markdown": "npx marked -i README.md -o index.html --gfm --no-mangle --no-header-ids",
+    "build": "npm run compile && npm run markdown",
+    "clean": "rm ./ez-package-tracker.js ./index.html"
   },
   "dependencies": {
     "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "marked": "^6.0.0"
   }
 }
