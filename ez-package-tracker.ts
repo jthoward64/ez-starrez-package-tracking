@@ -914,7 +914,7 @@
       if (newUrl !== oldUrl) {
         const entryId = getEntryId();
         if (
-          newUrl.match(/https:\/\/starport\.uky\.edu.*!entry:[0-9]+quick%20information/) &&
+          newUrl.match(/https:\/\/starport\.uky\.edu.*!entry:[0-9]+:quick%20information/) &&
           entryId != null
         ) {
           if (

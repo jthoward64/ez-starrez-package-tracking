@@ -680,7 +680,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             const newUrl = window.location.href;
             if (newUrl !== oldUrl) {
                 const entryId = getEntryId();
-                if (newUrl.match(/https:\/\/starport\.uky\.edu.*!entry:[0-9]+quick%20information/) &&
+                if (newUrl.match(/https:\/\/starport\.uky\.edu.*!entry:[0-9]+:quick%20information/) &&
                     entryId != null) {
                     if (document.getElementById(`entry${entryId}-detail-screen`) != null) {
                         console.log("Resident entry page opened, adding EZ Package Tracking form");
