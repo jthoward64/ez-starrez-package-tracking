@@ -417,7 +417,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             const pickupLocationEl = createSelect(statusId, trackingNumberId, "Parcel Pickup Location", "package-location", "location", ["", "Front Desk", "Mailbox"], cookieNameSavedLocation);
             editFields.appendChild(pickupLocationEl.element);
             // Replace above with call to createSelect
-            const shippingTypeEl = createSelect(statusId, trackingNumberId, "Shipping Type", "package-shipping-type", "shipping-type", ["", "Amazon Delivery", "USPS", "FedEx", "UPS", "Other"], cookieNameSavedShippingType);
+            const shippingTypeEl = createSelect(statusId, trackingNumberId, "Shipping Type", "package-shipping-type", "shipping-type", ["", "Amazon Delivery", "USPS", "FedEx", "UPS", "Other"]);
             editFields.appendChild(shippingTypeEl.element);
             const commentsLi = document.createElement("li");
             commentsLi.style.flexDirection = "row";

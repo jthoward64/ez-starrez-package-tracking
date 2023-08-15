@@ -102,7 +102,7 @@
     formName: string,
     selectOptions: string[],
     defaultValueCookieName?: string
-  ): {element: HTMLLIElement, getValue: () => string} {
+  ): { element: HTMLLIElement, getValue: () => string } {
     let defaultValue: string = "";
     let isValueSaved = false;
     if (defaultValueCookieName) {
@@ -488,8 +488,7 @@
     const packageFormId = `${statusId}-package-form-${trackingNumberId}`;
     if (document.getElementById(packageFormId) != null) {
       alert(
-        `You have already opened a${
-          status.match("^[aieouAIEOU].*") ? "n" : ""
+        `You have already opened a${status.match("^[aieouAIEOU].*") ? "n" : ""
         } ${status} form for tracking number "${trackingNumber}", enter a different tracking number or cancel the open form. If no form is open, reload the page.`
       );
       return;
@@ -549,8 +548,7 @@
       "Shipping Type",
       "package-shipping-type",
       "shipping-type",
-      ["", "Amazon Delivery", "USPS", "FedEx", "UPS", "Other"],
-      cookieNameSavedShippingType
+      ["", "Amazon Delivery", "USPS", "FedEx", "UPS", "Other"]
     );
     editFields.appendChild(
       shippingTypeEl.element
