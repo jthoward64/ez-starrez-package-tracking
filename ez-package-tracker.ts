@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         StarRez EZ Package Tracking
 // @namespace    http://tampermonkey.net/
-// @version      1.1.1
+// @version      1.1.2
 // @description  Adds an easy-to-use form to the Quick Information page of StarRez
 // @author       Joshua Tag Howard
-// @match        https://starport.uky.edu/StarRezWeb/main/directory
+// @match        https://starport.uky.edu
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=uky.edu
 // @grant        none
 // ==/UserScript==
@@ -912,11 +912,7 @@
       if (newUrl !== oldUrl) {
         const entryId = getEntryId();
         if (
-          newUrl.endsWith(":quick%20information") &&
-          newUrl.startsWith(
-            "https://starport.uky.edu/StarRezWeb/main/directory#"
-          ) &&
-          newUrl.indexOf("entry") > -1 &&
+          newUrl.match(/https:\/\/starport\.uky\.edu.*!entry:[0-9]+quick%20information/) &&
           entryId != null
         ) {
           if (
