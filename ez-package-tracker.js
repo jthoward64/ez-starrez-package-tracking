@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 // ==UserScript==
 // @name         StarRez EZ Package Tracking
 // @namespace    http://tampermonkey.net/
-// @version      1.1.3
+// @version      1.1.4
 // @description  Adds an easy-to-use form to the Quick Information page of StarRez
 // @author       Joshua Tag Howard
 // @match        https://starport.uky.edu/*
@@ -381,18 +381,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             else {
                 throw new Error("Invalid status");
             }
+            // Create an id based on the tracking number, this will be used to make sure we don't open multiple forms for the same tracking number
             const trackingNumberId = trackingNumber.replace(/\s+/g, "");
             const packageFormId = `${statusId}-package-form-${trackingNumberId}`;
+            // Check if we already have a form open for this tracking number
             if (document.getElementById(packageFormId) != null) {
                 alert(`You have already opened a${status.match("^[aieouAIEOU].*") ? "n" : ""} ${status} form for tracking number "${trackingNumber}", enter a different tracking number or cancel the open form. If no form is open, reload the page.`);
                 return;
             }
+            // Create the form
             const packageForm = document.createElement("form");
             packageForm.id = packageFormId;
             const packageFormOuterDiv = document.createElement("div");
             packageFormOuterDiv.style.paddingBottom = "8px";
             packageFormOuterDiv.className = "details ui-details";
             packageForm.appendChild(packageFormOuterDiv);
+            // Create the form fields container
             const editFields = document.createElement("ul");
             editFields.className = "edit-fields";
             editFields.style.padding = "8px";
@@ -402,6 +406,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             editFields.style.flexDirection = "column";
             editFields.style.gap = "0.5rem";
             packageFormOuterDiv.appendChild(editFields);
+            // Add a line for the tracking number
             const trackingNumberLi = document.createElement("li");
             editFields.appendChild(trackingNumberLi);
             const trackingNumberLabel = document.createElement("label");
@@ -409,6 +414,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             trackingNumberLabel.innerText = "Tracking Number:";
             trackingNumberLi.appendChild(trackingNumberLabel);
             trackingNumberLi.appendChild(document.createTextNode(trackingNumber));
+            // Add a line for the parcel status (received or issued)
             const statusLi = document.createElement("li");
             editFields.appendChild(statusLi);
             const statusLabel = document.createElement("label");
@@ -416,11 +422,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             statusLabel.innerText = "Parcel Status:";
             statusLi.appendChild(statusLabel);
             statusLi.appendChild(document.createTextNode(status));
+            // Add a box for the pickup location
             const pickupLocationEl = createSelect(statusId, trackingNumberId, "Parcel Pickup Location", "package-location", "location", ["", "Front Desk", "Mailbox"], cookieNameSavedLocation);
             editFields.appendChild(pickupLocationEl.element);
-            // Replace above with call to createSelect
-            const shippingTypeEl = createSelect(statusId, trackingNumberId, "Shipping Type", "package-shipping-type", "shipping-type", ["", "Amazon Delivery", "USPS", "FedEx", "UPS", "Other"]);
+            // Add a box for the shipping type
+            const shippingTypeEl = createSelect(statusId, trackingNumberId, "Shipping Type", "package-shipping-type", "shipping-type", ["", "Amazon", "USPS", "FedEx", "UPS", "Other"]);
             editFields.appendChild(shippingTypeEl.element);
+            // Add a box for comments
             const commentsLi = document.createElement("li");
             commentsLi.style.flexDirection = "row";
             editFields.appendChild(commentsLi);
@@ -443,66 +451,83 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             commentsTextareaInput.placeholder = "<empty>";
             commentsTextareaInput.spellcheck = true;
             commentsTextareaDiv.appendChild(commentsTextareaInput);
+            // Get the list of possible buildings
             const possibleBuildings = yield getPossibleBuildings();
             if (!possibleBuildings) {
                 alert("Failed to get list of buildings, please reload the page and try again, if the problem persists the EZ Package Tracker may be broken");
                 return;
             }
+            // Add a box for the building
             const buildingEl = createSelect(statusId, trackingNumberId, "Building", "package-building", "building", possibleBuildings, cookieNameSavedBuilding);
             editFields.appendChild(buildingEl.element);
+            // Create the message for above the submit button
             const submitNote = document.createElement("p");
             submitNote.innerText = '"Submit Parcel" will be enabled automatically';
             editFields.appendChild(submitNote);
+            // Create the submit and cancel buttons
             const submitButton = document.createElement("button");
             submitButton.type = "submit";
             submitButton.className = "ui-detail-wizards sr_button_primary sr_button";
             submitButton.innerText = "Submit Package";
             editFields.appendChild(submitButton);
+            // Create the cancel button
             const cancelButton = document.createElement("button");
             cancelButton.type = "reset";
             cancelButton.className = "ui-close-popup sr_button_secondary sr_button";
             cancelButton.id = `${statusId}-package-cancel-button-${trackingNumberId}`;
             cancelButton.innerText = "Cancel";
+            editFields.appendChild(cancelButton);
+            // Upon submission, make a request to submit the package
             packageForm.addEventListener("submit", (e) => {
+                // Prevent the form from submitting normally
                 e.preventDefault();
                 e.stopPropagation();
                 console.log("Getting ready to submit package");
                 if (e.target != null && e.target instanceof HTMLFormElement) {
+                    // Grab the values from the form
                     const location = pickupLocationEl.getValue();
                     const shippingType = shippingTypeEl.getValue();
                     const comments = commentsTextareaInput.value;
                     const building = buildingEl.getValue();
+                    // Make sure all the fields are filled out
                     if (location == null || shippingType == null || building == null) {
                         alert("Please fill out all fields");
                         return;
                     }
+                    // Make sure all the fields are valid data
                     if (typeof location !== "string" ||
                         typeof shippingType !== "string" ||
                         (comments != null && typeof comments !== "string") ||
                         typeof building !== "string") {
                         throw new Error("Invalid form data");
                     }
+                    // Create the request body
                     const submitPackageArg = {
                         trackingNumber,
                         status,
                         location,
                         building,
                     };
+                    // Add optional fields if they are set
                     if (shippingType) {
                         submitPackageArg.shippingType = shippingType;
                     }
                     if (comments) {
                         submitPackageArg.comments = comments;
                     }
+                    // Submit the package
                     console.log("Submitting package", submitPackageArg);
                     submitPackage(submitPackageArg).catch(console.error);
                 }
+                // Remove the form
                 packageForm.remove();
             });
+            // Upon cancellation, remove the form
             packageForm.addEventListener("reset", () => {
                 packageForm.remove();
             });
             const mainPane = getMainPane();
+            // A utility function to update the text of the select element
             const onPackageSelectionChanged = (selector) => {
                 var _a, _b;
                 const selectorText = document.getElementById(selector.id + "-text");
@@ -515,7 +540,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 }
             };
             if (mainPane) {
+                // Add the form to the main pane
                 mainPane.appendChild(packageForm);
+                // Attach event listeners for updating the text of the select elements
                 const locationSelector = document.getElementById(`${statusId}-package-location-${trackingNumberId}`);
                 if (locationSelector instanceof HTMLSelectElement) {
                     locationSelector.addEventListener("change", () => onPackageSelectionChanged(locationSelector));
